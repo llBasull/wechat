@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+  </head>
+  <body>
+    <h1>Welcome, <%= user.fullname %></h1>
+    <h2>All Users:</h2>
+    <ul>
+      <% allUsers.forEach(otherUser => { %>
+      <li>
+        <%= otherUser.username %> <% let isFriend = false; %> <%
+        friends.forEach(friend => { %> <% if(otherUser.username ===
+        friend.username) { %> <% isFriend = true; %>
+        <p>Already A friend</p>
+        <% } %> <% }); %> <% if (!isFriend) { %>
+        <form action="/addfriend" method="post">
+          <input type="hidden" name="receiverId" value="<%= otherUser._id %>" />
+          <button type="submit">Add Friend</button>
+        </form>
+        <% } %>
+      </li>
+      <% }); %>
+    </ul>
+
+    <h2>Friend Requests Received:</h2>
+    <ul>
+      <% friendRequestsReceived.forEach(requestUser => { %>
+      <li>
+        <%= requestUser.username %> has sent you a friend request.
+        <form action="/accept" method="post">
+          <input
+            type="hidden"
+            name="sendersId"
+            value="<%= requestUser._id %>"
+          />
+          <input type="submit" value="Accept Request" />
+        </form>
+        <form action="/delete" method="post">
+          <input
+            type="hidden"
+            name="sendersId"
+            value="<%= requestUser._id %>"
+          />
+          <input type="submit" value="Delete Request" />
+        </form>
+      </li>
+      <% }); %>
+    </ul>
+
+    <h2>All Friends:</h2>
+    <ul>
+      <% friends.forEach(friend => { %>
+      <li>
+        <%= friend.username %>
+        <!-- Add a chat button for each friend -->
+        <form action="/chat/<%= friend._id %>" method="get">
+          <button type="submit">Chat</button>
+        </form>
+      </li>
+      <% }); %>
+    </ul>
+  </body>
+</html>

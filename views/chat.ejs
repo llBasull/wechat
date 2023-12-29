@@ -1,0 +1,60 @@
+<!-- Inside your chat.ejs file -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat with <%= friend.username %></title>
+  </head>
+  <body>
+    <h1>Chat with <%= friend.username %></h1>
+
+    <ul id="messages"></ul>
+
+    <div>
+      <input id="messageInput" autocomplete="off" />
+      <button id="sendButton">Send</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      socket.on("connect", function () {
+        console.log("Connected to server");
+        console.log("Friend ID:", "<%= friend._id %>");
+        
+        socket.emit("join room", "<%= friend._id %>");
+
+        socket.on("join room", (roomId) => {
+          console.log("User joined room:", roomId);
+          socket.join(roomId);
+        });
+        socket.on("chat message", function (msg) {
+          console.log("Received chat message:", msg);
+          $("#messages").append(
+            "<li>" + msg.username + ": " + msg.content + "</li>"
+          );
+        });
+      });
+
+      // Listen for incoming chat messages
+
+      // Function to send a chat message
+      $("#sendButton").on("click", function () {
+        var messageInput = $("#messageInput");
+        var messageContent = messageInput.val().trim();
+
+        if (messageContent !== "") {
+          socket.emit("chat message", {
+            username: "<%= user.username %>",
+            content: messageContent,
+            receiverId: "<%= friend._id %>",
+          });
+          messageInput.val("");
+        }
+      });
+    </script>
+  </body>
+</html>
